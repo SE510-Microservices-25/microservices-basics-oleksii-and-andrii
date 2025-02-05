@@ -13,10 +13,11 @@ public class VoteService : ControllerBase
     {
         var voteDate = DateTime.Now;
         var vote = new Vote(pollId, userId, choiceId, voteDate);
-        if (!_votes.TryGetValue(vote.PollId, out List<Vote>? value))
+        if (!_votes.TryGetValue(vote.PollId, out var value))
         {
             value = new List<Vote>();
             _votes[vote.PollId] = value;
+            Console.WriteLine("Poll created");
         }
 
         if (value.Contains(vote))
@@ -48,25 +49,27 @@ public class VoteService : ControllerBase
     }
 
     [HttpGet("get_votes/{pollId}")]
-    public List<Vote> GetVotes(int pollId)
+    public IActionResult GetVotes(int pollId)
     {
         if (!_votes.TryGetValue(pollId, out List<Vote>? value))
         {
-            return new List<Vote>();
+            return Problem("Poll not found");
         }
 
-        return value;
+        return Ok(value);
     }
 
     [HttpGet("get_result/{pollId}")]
-    public Dictionary<int, int> GetResult(int pollId)
+    public IActionResult GetResult(int pollId)
     {
         if (!_votes.TryGetValue(pollId, out List<Vote>? value))
         {
-            throw new AccessViolationException("Poll not found");
+            return Problem("Poll not found");
         }
 
-        return value.GroupBy(vote => vote.ChoiceId)
+        var result = value.GroupBy(vote => vote.ChoiceId)
             .ToDictionary(group => group.Key, group => group.Count());
+
+        return Ok(result);
     }
 }
