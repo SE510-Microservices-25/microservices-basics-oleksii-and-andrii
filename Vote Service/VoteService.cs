@@ -8,8 +8,11 @@ public class VoteService : ControllerBase
 {
     private readonly Dictionary<int, List<Vote>> _votes = new();
 
-    protected IActionResult RegisterVote(Vote vote)
+    [HttpGet("register/{pollId}/{userId}/{choiceId}")]
+    public IActionResult RegisterVote(int pollId, int userId, int choiceId)
     {
+        var voteDate = DateTime.Now;
+        var vote = new Vote(pollId, userId, choiceId, voteDate);
         if (!_votes.TryGetValue(vote.PollId, out List<Vote>? value))
         {
             value = new List<Vote>();
@@ -18,44 +21,33 @@ public class VoteService : ControllerBase
 
         if (value.Contains(vote))
         {
-            throw new InvalidOperationException("Vote already registered");
+            return Ok("Vote already registered");
         }
 
         value.Add(vote);
-        return Ok();
-    }
-
-    protected IActionResult UnregisterVote(Vote vote)
-    {
-        if (!_votes.TryGetValue(vote.PollId, out List<Vote>? value))
-        {
-            throw new InvalidOperationException("Vote not found");
-        }
-
-        if (!value.Remove(vote))
-        {
-            throw new InvalidOperationException("Vote not found");
-        }
-        return Ok();
-    }
-
-    [HttpGet("register/{pollId}/{userId}/{choiceId}")]
-    public IActionResult RegisterVote(int pollId, int userId, int choiceId)
-    {
-        var voteDate = DateTime.Now;
-        RegisterVote(new Vote(pollId, userId, choiceId, voteDate));
-        return Ok();
+        Console.WriteLine($"Vote registered: {vote.PollId}, {vote.UserId}, {vote.ChoiceId}");
+        return Ok("Vote registered");
     }
 
     [HttpGet("unregister/{pollId}/{userId}/{choiceId}")]
     public IActionResult UnregisterVote(int pollId, int userId, int choiceId)
     {
         var voteDate = DateTime.Now;
-        UnregisterVote(new Vote(pollId, userId, choiceId, voteDate));
-        return Ok();
+        var vote = new Vote(pollId, userId, choiceId, voteDate);
+        if (!_votes.TryGetValue(vote.PollId, out List<Vote>? value))
+        {
+            return Problem("Poll not found");
+        }
+
+        if (!value.Remove(vote))
+        {
+            return Problem("Vote not found");
+        }
+
+        return Ok("Vote unregistered");
     }
 
-    [HttpGet("{pollId}")]
+    [HttpGet("get_votes/{pollId}")]
     public List<Vote> GetVotes(int pollId)
     {
         if (!_votes.TryGetValue(pollId, out List<Vote>? value))
@@ -66,7 +58,7 @@ public class VoteService : ControllerBase
         return value;
     }
 
-    [HttpGet("getresult/{pollId}")]
+    [HttpGet("get_result/{pollId}")]
     public Dictionary<int, int> GetResult(int pollId)
     {
         if (!_votes.TryGetValue(pollId, out List<Vote>? value))

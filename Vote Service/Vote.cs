@@ -2,16 +2,23 @@
 
 public class Vote(int pollId, int userId, int choiceId, DateTime voteDate)
 {
-    public int PollId { get; private set; } = pollId;
-    private int UserId { get; set; } = userId;
-    public int ChoiceId { get; private set; } = choiceId;
-    private DateTime VoteDate { get; set; } = voteDate;
+    public int PollId { get; } = pollId;
+    public int UserId { get; } = userId;
+    public int ChoiceId { get; } = choiceId;
+    private DateTime VoteDate { get; } = voteDate;
 
-    public bool Equals(Vote? other)
+    public override bool Equals(object? obj)
     {
-        if (ReferenceEquals(null, other)) return false;
-        if (ReferenceEquals(this, other)) return true;
-        return PollId == other.PollId && UserId == other.UserId &&
-               ChoiceId == other.ChoiceId && VoteDate.Equals(other.VoteDate);
+        if (obj is Vote vote)
+        {
+            return PollId == vote.PollId && UserId == vote.UserId && ChoiceId == vote.ChoiceId;
+        }
+
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(PollId, UserId, ChoiceId);
     }
 }
