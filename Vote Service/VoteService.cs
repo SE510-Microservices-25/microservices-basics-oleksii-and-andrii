@@ -6,7 +6,7 @@ namespace vote_system;
 [Route("/[controller]")]
 public class VoteService : ControllerBase
 {
-    private readonly Dictionary<int, List<Vote>> _votes = new();
+    private static Dictionary<int, List<Vote>> _votes = new();
 
     [HttpGet("register/{pollId}/{userId}/{choiceId}")]
     public IActionResult RegisterVote(int pollId, int userId, int choiceId)
@@ -17,7 +17,6 @@ public class VoteService : ControllerBase
         {
             value = new List<Vote>();
             _votes[vote.PollId] = value;
-            Console.WriteLine("Poll created");
         }
 
         if (value.Contains(vote))
@@ -26,7 +25,6 @@ public class VoteService : ControllerBase
         }
 
         value.Add(vote);
-        Console.WriteLine($"Vote registered: {vote.PollId}, {vote.UserId}, {vote.ChoiceId}");
         return Ok("Vote registered");
     }
 
