@@ -1,4 +1,4 @@
-﻿namespace vote_system;
+﻿namespace VoteSystem.Entities;
 
 public class Vote(int pollId, int userId, int choiceId, DateTime voteDate)
 {

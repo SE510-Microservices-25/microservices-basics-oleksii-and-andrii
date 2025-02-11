@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using VoteSystem.Entities;
 
-namespace vote_system;
+namespace VoteSystem.Controllers;
 
 [ApiController]
 [Route("/[controller]")]
