@@ -18,6 +18,7 @@ namespace VoteSystem.Controllers
         [HttpPost]
         public async Task<ActionResult<Vote>> PostVotes(Vote vote)
         {
+            vote.VoteDate = DateTime.Now.ToUniversalTime();
             context.Votes.Add(vote);
             await context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetVotes), new { id = vote.Id }, vote);
