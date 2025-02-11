@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using VoteSystem.Entities;
+using VoteSystem.Classes;
 
 namespace VoteSystem.Controllers;
 
