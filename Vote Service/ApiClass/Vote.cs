@@ -1,11 +1,11 @@
 ﻿namespace VoteSystem.Classes;
 
-public class Vote(int pollId, int userId, int choiceId, DateTime voteDate)
+public class Vote(int pollId, int userId, int choiceId, DateTime date)
 {
     public int PollId { get; } = pollId;
     public int UserId { get; } = userId;
     public int ChoiceId { get; } = choiceId;
-    private DateTime VoteDate { get; } = voteDate;
+    private DateTime Date { get; } = date;
 
     public override bool Equals(object? obj)
     {

@@ -6,5 +6,5 @@ public class Vote
     public int PollId { get; set; }
     public int UserId { get; set; }
     public int ChoiceId { get; set; }
-    public DateTime VoteDate { get; set; }
+    public DateTime Date { get; set; }
 }

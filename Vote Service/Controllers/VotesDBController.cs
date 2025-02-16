@@ -16,12 +16,27 @@ namespace VoteSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Vote>> PostVotes(Vote vote)
+        public async Task<ActionResult<Vote>> PostVotes(Vote? vote)
         {
-            vote.VoteDate = DateTime.Now.ToUniversalTime();
-            context.Votes.Add(vote);
-            await context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetVotes), new { id = vote.Id }, vote);
+            if (vote == null)
+            {
+                return BadRequest("Vote cannot be null");
+            }
+
+            vote.Date = DateTime.Now.ToUniversalTime();
+
+            try
+            {
+                context.Votes.Add(vote);
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error saving vote to the database");
+            }
+
+            return CreatedAtAction(nameof(GetVotes), new { id = vote.Id, time = vote.Date }, vote);
         }
     }
 }
