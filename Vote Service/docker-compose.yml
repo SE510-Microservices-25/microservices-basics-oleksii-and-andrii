@@ -1,0 +1,5 @@
+﻿services:
+  vote_service:
+    build: ./{ServiceFolder}
+    ports:
+      - "5001:8080"
