@@ -12,7 +12,7 @@ using VoteSystem.Data;
 namespace VoteSystem.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250211170512_InitialCreate")]
+    [Migration("20250216203621_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -36,14 +36,14 @@ namespace VoteSystem.Migrations
                     b.Property<int>("ChoiceId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("PollId")
                         .HasColumnType("integer");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
-
-                    b.Property<DateTime>("VoteDate")
-                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
