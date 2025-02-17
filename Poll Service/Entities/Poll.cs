@@ -1,61 +1,37 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace PollSystem.Entities;
 
 public class Poll
 {
-	public Poll(int id, PollCreateDto pollCreateDto)
+	public Poll() { }
+
+	public Poll(string question, List<PollOption> options, DateTime expirationDate)
 	{
-		Id = id;
-		Question = pollCreateDto.Question;
-		Options = pollCreateDto.Options
-			.Select((option, index) => new PollOption(index + 1, option))
-			.ToList();
-		ExpirationTime = pollCreateDto.ExpirationTime;
+		Question = question;
+		Options = options;
+		ExpirationDate = expirationDate;
 	}
 
-	public int Id { get; init; }
-	public string Question { get; set; }
-	public List<PollOption> Options { get; set; }
-	public DateTime ExpirationTime { get; set; }
+	[Key] public int Id { get; init; }
+	[Required, MaxLength(255)] public string Question { get; set; }
+	public ICollection<PollOption> Options { get; set; } = new List<PollOption>();
+	public DateTime ExpirationDate { get; set; }
 
-	public override bool Equals(object? obj)
-	{
-		if (obj is not Poll other)
-		{
-			return false;
-		}
-
-		return Id == other.Id
-			&& Question == other.Question
-			&& Options.SequenceEqual(other.Options)
-			&& ExpirationTime == other.ExpirationTime;
-	}
-
-	public override int GetHashCode()
-	{
-		return Id;
-	}
+	public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
+	public DateTime UpdatedOn { get; set; } = DateTime.UtcNow;
 }
 
 public class PollCreateDto
 {
 	public string Question { get; init; }
 	public List<PollOptionCreateDto> Options { get; init; } = new();
-	public DateTime ExpirationTime { get; init; } = DateTime.UtcNow.AddDays(7);
+	public DateTime ExpirationDate { get; init; }
+}
 
-	public override bool Equals(object? obj)
-	{
-		if (obj is not PollCreateDto other)
-		{
-			return false;
-		}
-
-		return Question == other.Question
-			&& Options.SequenceEqual(other.Options)
-			&& ExpirationTime == other.ExpirationTime;
-	}
-
-	public override int GetHashCode()
-	{
-		return HashCode.Combine(Question, ExpirationTime);
-	}
+public class PollUpdateDto
+{
+	public string Question { get; init; }
+	public List<PollOptionCreateDto> Options { get; init; } = new();
+	public DateTime ExpirationDate { get; init; }
 }

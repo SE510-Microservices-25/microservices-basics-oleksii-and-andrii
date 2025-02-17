@@ -455,12 +455,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# content below from: https://github.com/github/gitignore/blob/master/Global/Windows.gitignore
-# Windows thumbnail cache files
-Thumbs.db
-ehthumbs.db
-ehthumbs_vista.db
-
 # Dump file
 *.stackdump
 
@@ -482,3 +476,8 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Database
+*.db
+*.db-shm
+*.db-wal
