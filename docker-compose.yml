@@ -3,7 +3,18 @@
     build: "./Vote Service"
     ports:
       - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - microservices-network
   poll_service:
     build: "./Poll Service"
     ports:
       - "5001:3000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - microservices-network
+networks:
+  microservices-network:
+    driver: bridge
