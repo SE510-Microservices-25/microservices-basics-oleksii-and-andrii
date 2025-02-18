@@ -10,7 +10,7 @@
   poll_service:
     build: "./Poll Service"
     ports:
-      - "5001:3000"
+      - "5002:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     networks:
