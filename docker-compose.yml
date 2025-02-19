@@ -7,6 +7,8 @@
       - ASPNETCORE_ENVIRONMENT=Development
     networks:
       - microservices-network
+    depends_on:
+      - database
   poll_service:
     build: "./Poll Service"
     ports:
@@ -15,6 +17,22 @@
       - ASPNETCORE_ENVIRONMENT=Development
     networks:
       - microservices-network
+    depends_on:
+      - database
+  database:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1q2w3e4r
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db_schema.sql:/docker-entrypoint-initdb.d/db_schema.sql
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
 networks:
   microservices-network:
     driver: bridge
+volumes:
+  postgres_data:
