@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\Users\Heilstah\scoop\apps\kompose\current\kompose.exe convert -f .\docker-compose.yml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: vote-service
+  name: vote_service
+spec:
+  ports:
+    - name: "5001"
+      port: 5001
+      targetPort: 8080
+  selector:
+    io.kompose.service: vote-service

@@ -1,0 +1,12 @@
+apiVersion: v1
+data:
+  db_schema.sql: |-
+    CREATE DATABASE service;
+    \c service;
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  labels:
+    io.kompose.service: database
+  name: database-cm0
