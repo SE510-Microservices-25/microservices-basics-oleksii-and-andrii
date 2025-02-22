@@ -1,5 +1,0 @@
-services:
-  poll-service:
-    build: .
-    ports:
-      - "5001:8080"
