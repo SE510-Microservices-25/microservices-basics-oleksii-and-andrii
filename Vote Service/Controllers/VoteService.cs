@@ -47,7 +47,7 @@ public class VoteService : ControllerBase
         return Ok("Vote unregistered");
     }
 
-    [HttpGet("get_votes/{pollId}")]
+    [HttpGet("get-votes/{pollId}")]
     public IActionResult GetVotes(int pollId)
     {
         if (!_votes.TryGetValue(pollId, out List<Vote>? value))
@@ -58,7 +58,7 @@ public class VoteService : ControllerBase
         return Ok(value);
     }
 
-    [HttpGet("get_result/{pollId}")]
+    [HttpGet("get-result/{pollId}")]
     public IActionResult GetResult(int pollId)
     {
         if (!_votes.TryGetValue(pollId, out List<Vote>? value))
