@@ -18,8 +18,11 @@ spec:
         - env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
-            - name: ConnectionStrings__DefaultConnection
-              value: Host=database;Port=5432;Database=service;Username=postgres;Password=1q2w3e4r
+            - name: ConnectionStrings__VoteDbConnection
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: DbConnection
           image: vote-service
           name: vote-service
           ports:
