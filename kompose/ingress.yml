@@ -16,11 +16,11 @@ spec:
               service:
                 name: poll-service
                 port:
-                  number: 80
+                  name: "5002"
           - path: /votes
             pathType: Prefix
             backend:
               service:
                 name: vote-service
                 port:
-                  number: 80
+                  name: "5001"
