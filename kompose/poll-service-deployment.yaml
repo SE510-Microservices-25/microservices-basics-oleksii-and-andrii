@@ -1,9 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: C:\Users\Heilstah\scoop\apps\kompose\current\kompose.exe convert -f .\docker-compose.yml
-    kompose.version: 1.35.0 (9532ceef3)
   labels:
     io.kompose.service: poll-service
   name: poll-service
@@ -14,9 +11,6 @@ spec:
       io.kompose.service: poll-service
   template:
     metadata:
-      annotations:
-        kompose.cmd: C:\Users\Heilstah\scoop\apps\kompose\current\kompose.exe convert -f .\docker-compose.yml
-        kompose.version: 1.35.0 (9532ceef3)
       labels:
         io.kompose.service: poll-service
     spec:

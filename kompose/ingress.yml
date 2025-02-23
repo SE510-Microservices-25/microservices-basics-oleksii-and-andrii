@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: microservices-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: microservices.local
+      http:
+        paths:
+          - path: /polls
+            pathType: Prefix
+            backend:
+              service:
+                name: poll-service
+                port:
+                  number: 80
+          - path: /votes
+            pathType: Prefix
+            backend:
+              service:
+                name: vote-service
+                port:
+                  number: 80
