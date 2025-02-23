@@ -6,7 +6,7 @@ metadata:
   name: poll-service
 spec:
   ports:
-    - name: "5002"
+    - name: "poll-port"
       port: 5002
       targetPort: 8080
   selector:

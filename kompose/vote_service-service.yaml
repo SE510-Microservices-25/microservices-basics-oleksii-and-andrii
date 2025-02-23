@@ -6,7 +6,7 @@ metadata:
   name: vote-service
 spec:
   ports:
-    - name: "5001"
+    - name: "vote-port"
       port: 5001
       targetPort: 8080
   selector:
