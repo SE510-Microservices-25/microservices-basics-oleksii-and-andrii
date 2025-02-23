@@ -3,7 +3,7 @@ kind: Service
 metadata:
   labels:
     io.kompose.service: vote-service
-  name: vote_service
+  name: vote-service
 spec:
   ports:
     - name: "5001"

@@ -23,7 +23,7 @@ spec:
                 secretKeyRef:
                   name: db-secret
                   key: DbConnection
-          image: vote-service
+          image: ostepanyk/vote_service
           name: vote-service
           ports:
             - containerPort: 8080
