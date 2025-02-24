@@ -39,11 +39,11 @@ namespace VoteSystem.Controllers
             return CreatedAtAction(nameof(GetVotes), new { id = vote.Id, time = vote.Date }, vote);
         }
 
-        [HttpGet("get-polls")]
+        [HttpGet("get_polls")]
         public async Task<IActionResult> GetPolls()
         {
-            using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync("http://poll_service/PollsController/");
+            var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync("http://poll_service:5001/PollsController/");
             var polls = await response.Content.ReadAsStringAsync();
             return Ok(polls);
         }
