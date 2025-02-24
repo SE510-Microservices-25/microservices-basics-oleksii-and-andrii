@@ -7,7 +7,7 @@ namespace VoteSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class VoteDbController(AppDbContext context, HttpClient httpClient) : ControllerBase
+    public class VoteDbController(AppDbContext context) : ControllerBase
     {
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Vote>>> GetVotes()
@@ -42,6 +42,7 @@ namespace VoteSystem.Controllers
         [HttpGet("get-polls")]
         public async Task<IActionResult> GetPolls()
         {
+            using var httpClient = new HttpClient();
             var response = await httpClient.GetAsync("http://poll_service/PollsController/");
             var polls = await response.Content.ReadAsStringAsync();
             return Ok(polls);
