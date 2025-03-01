@@ -18,7 +18,12 @@ spec:
         - env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
-          image: poll-service
+            - name: ConnectionStrings__PollDbConnection
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-db-secret
+                  key: DbConnection
+          image: shcherba/poll_service
           name: poll-service
           ports:
             - containerPort: 8080

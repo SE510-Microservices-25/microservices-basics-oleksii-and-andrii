@@ -15,11 +15,12 @@
     ports:
       - "5002:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=mysql;Port=3306;Database=pollDb;Uid=pollUser;Pwd=aseBaX123;"
     networks:
       - microservices-network
     depends_on:
-      - database
+      - mysql
   database:
     image: postgres:latest
     environment:
@@ -32,8 +33,22 @@
       - postgres_data:/var/lib/postgresql/data
     networks:
       - microservices-network
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pollDb
+      MYSQL_USER: pollUser
+      MYSQL_PASSWORD: aseBaX123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - microservices-network
 networks:
   microservices-network:
     driver: bridge
 volumes:
   postgres_data:
+  mysql_data:
