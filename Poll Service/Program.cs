@@ -17,6 +17,22 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+	var services = scope.ServiceProvider;
+	try
+	{
+		var dbContext = services.GetRequiredService<AppDbContext>();
+		dbContext.Database.Migrate();
+		Console.WriteLine("Database migrated successfully!");
+	}
+	catch (Exception ex)
+	{
+		var logger = services.GetRequiredService<ILogger<Program>>();
+		logger.LogError(ex, "An error occurred while migrating the database.");
+	}
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
