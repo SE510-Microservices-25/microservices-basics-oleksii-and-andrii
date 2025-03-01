@@ -4,9 +4,9 @@ using PollSystem.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add DbContext
-string dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+string dbConnectionString = builder.Configuration.GetConnectionString("PollDbConnection")!;
 builder.Services.AddDbContext<AppDbContext>(
-	options => options.UseSqlite(dbConnectionString)
+	options => options.UseMySql(dbConnectionString, ServerVersion.AutoDetect(dbConnectionString))
 );
 
 // Add services to the container.
