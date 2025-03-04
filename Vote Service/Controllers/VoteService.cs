@@ -13,7 +13,7 @@ public class VoteService : ControllerBase
     [HttpPost("register/")]
     public IActionResult RegisterVote(VoteData voteData)
     {
-        var voteDate = DateTime.Now.ToUniversalTime();
+        var voteDate = DateTime.Now;
         var vote = new Vote(voteData.PollId, voteData.UserId, voteData.ChoiceId, voteDate);
         if (!Votes.TryGetValue(vote.PollId, out var value))
         {
