@@ -4,7 +4,7 @@ using VoteSystem.Classes;
 namespace VoteSystem.Controllers;
 
 [ApiController]
-[Route("/[controller]")]
+[Route("[controller]")]
 public class VoteService : ControllerBase
 {
     private static Dictionary<int, List<Vote>> _votes = new();

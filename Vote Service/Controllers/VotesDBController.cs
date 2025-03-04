@@ -5,7 +5,7 @@ using VoteSystem.Models;
 
 namespace VoteSystem.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class VoteDbController(AppDbContext context) : ControllerBase
     {
@@ -39,11 +39,11 @@ namespace VoteSystem.Controllers
             return CreatedAtAction(nameof(GetVotes), new { id = vote.Id, time = vote.Date }, vote);
         }
 
-        [HttpGet("get_polls")]
+        [HttpGet("get-polls")]
         public async Task<IActionResult> GetPolls()
         {
             var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync("http://poll_service:5002/PollsController/");
+            var response = await httpClient.GetAsync("http://poll-service:5002/Polls/");
             var polls = await response.Content.ReadAsStringAsync();
             return Ok(polls);
         }
