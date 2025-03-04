@@ -43,7 +43,7 @@ namespace VoteSystem.Controllers
         public async Task<IActionResult> GetPolls()
         {
             var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync("http://poll_service:5001/PollsController/");
+            var response = await httpClient.GetAsync("http://poll_service:5002/PollsController/");
             var polls = await response.Content.ReadAsStringAsync();
             return Ok(polls);
         }
