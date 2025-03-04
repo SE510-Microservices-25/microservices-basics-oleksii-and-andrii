@@ -5,7 +5,7 @@ public class Vote(int pollId, int userId, int choiceId, DateTime date)
     public int PollId { get; } = pollId;
     public int UserId { get; } = userId;
     public int ChoiceId { get; } = choiceId;
-    private DateTime Date { get; } = date;
+    public DateTime Date { get; } = date;
 
     public override bool Equals(object? obj)
     {

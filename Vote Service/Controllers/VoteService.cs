@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using VoteSystem.Classes;
+using VoteSystem.Models;
+using Vote = VoteSystem.Classes.Vote;
 
 namespace VoteSystem.Controllers;
 
@@ -7,17 +8,17 @@ namespace VoteSystem.Controllers;
 [Route("[controller]")]
 public class VoteService : ControllerBase
 {
-    private static Dictionary<int, List<Vote>> _votes = new();
+    private static readonly Dictionary<int, List<Vote>> Votes = new();
 
-    [HttpGet("register/{pollId}/{userId}/{choiceId}")]
-    public IActionResult RegisterVote(int pollId, int userId, int choiceId)
+    [HttpPost("register/")]
+    public IActionResult RegisterVote(VoteData voteData)
     {
-        var voteDate = DateTime.Now;
-        var vote = new Vote(pollId, userId, choiceId, voteDate);
-        if (!_votes.TryGetValue(vote.PollId, out var value))
+        var voteDate = DateTime.Now.ToUniversalTime();
+        var vote = new Vote(voteData.PollId, voteData.UserId, voteData.ChoiceId, voteDate);
+        if (!Votes.TryGetValue(vote.PollId, out var value))
         {
-            value = new List<Vote>();
-            _votes[vote.PollId] = value;
+            value = [];
+            Votes[vote.PollId] = value;
         }
 
         if (value.Contains(vote))
@@ -26,42 +27,38 @@ public class VoteService : ControllerBase
         }
 
         value.Add(vote);
-        return Ok("Vote registered");
+        return Ok(vote);
     }
 
-    [HttpGet("unregister/{pollId}/{userId}/{choiceId}")]
-    public IActionResult UnregisterVote(int pollId, int userId, int choiceId)
+    [HttpDelete("unregister/")]
+    public IActionResult UnregisterVote(VoteData voteData)
     {
         var voteDate = DateTime.Now;
-        var vote = new Vote(pollId, userId, choiceId, voteDate);
-        if (!_votes.TryGetValue(vote.PollId, out List<Vote>? value))
+        var vote = new Vote(voteData.PollId, voteData.UserId, voteData.ChoiceId, voteDate);
+        if (!Votes.TryGetValue(vote.PollId, out var value))
         {
             return Problem("Poll not found");
         }
 
-        if (!value.Remove(vote))
-        {
-            return Problem("Vote not found");
-        }
-
-        return Ok("Vote unregistered");
+        return !value.Remove(vote) ? Problem("Vote not found") : Ok("Vote unregistered");
     }
 
-    [HttpGet("get-votes/{pollId}")]
-    public IActionResult GetVotes(int pollId)
+    [HttpGet("votes/")]
+    public IActionResult GetAllVotes([FromRoute] int pollId)
     {
-        if (!_votes.TryGetValue(pollId, out List<Vote>? value))
-        {
-            return Problem("Poll not found");
-        }
-
-        return Ok(value);
+        return Ok(Votes);
     }
 
-    [HttpGet("get-result/{pollId}")]
-    public IActionResult GetResult(int pollId)
+    [HttpGet("votes/{pollId:int}")]
+    public IActionResult GetVotes([FromRoute] int pollId)
     {
-        if (!_votes.TryGetValue(pollId, out List<Vote>? value))
+        return !Votes.TryGetValue(pollId, out var value) ? Problem("Poll not found") : Ok(value);
+    }
+
+    [HttpGet("result/{pollId:int}")]
+    public IActionResult GetResult([FromRoute] int pollId)
+    {
+        if (!Votes.TryGetValue(pollId, out List<Vote>? value))
         {
             return Problem("Poll not found");
         }
