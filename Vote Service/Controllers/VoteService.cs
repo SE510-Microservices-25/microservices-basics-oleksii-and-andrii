@@ -10,7 +10,19 @@ public class VoteService : ControllerBase
 {
     private static readonly Dictionary<int, List<Vote>> Votes = new();
 
-    [HttpPost("register/")]
+    [HttpGet("/")]
+    public IActionResult GetAllVotes([FromRoute] int pollId)
+    {
+        return Ok(Votes);
+    }
+
+    [HttpGet("/{pollId:int}")]
+    public IActionResult GetVote([FromRoute] int pollId)
+    {
+        return !Votes.TryGetValue(pollId, out var value) ? Problem("Poll not found") : Ok(value);
+    }
+
+    [HttpPost("/")]
     public IActionResult RegisterVote(VoteData voteData)
     {
         var voteDate = DateTime.Now;
@@ -30,7 +42,7 @@ public class VoteService : ControllerBase
         return Ok(vote);
     }
 
-    [HttpDelete("unregister/")]
+    [HttpDelete("/")]
     public IActionResult UnregisterVote(VoteData voteData)
     {
         var voteDate = DateTime.Now;
@@ -43,19 +55,17 @@ public class VoteService : ControllerBase
         return !value.Remove(vote) ? Problem("Vote not found") : Ok("Vote unregistered");
     }
 
-    [HttpGet("votes/")]
-    public IActionResult GetAllVotes([FromRoute] int pollId)
+    [HttpGet("/result/")]
+    public IActionResult GetAllResults()
     {
-        return Ok(Votes);
+        List<Dictionary<int, int>> result = [];
+        result.AddRange(Votes.Select(poll => poll.Value.GroupBy(vote => vote.ChoiceId)
+            .ToDictionary(group => group.Key, group => group.Count())));
+
+        return Ok(result);
     }
 
-    [HttpGet("votes/{pollId:int}")]
-    public IActionResult GetVotes([FromRoute] int pollId)
-    {
-        return !Votes.TryGetValue(pollId, out var value) ? Problem("Poll not found") : Ok(value);
-    }
-
-    [HttpGet("result/{pollId:int}")]
+    [HttpGet("/result/{pollId:int}")]
     public IActionResult GetResult([FromRoute] int pollId)
     {
         if (!Votes.TryGetValue(pollId, out List<Vote>? value))
