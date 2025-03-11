@@ -24,14 +24,14 @@ public class Poll
 
 public class PollCreateDto
 {
-	public string Question { get; init; }
+	public string Question { get; init; } = string.Empty;
 	public List<PollOptionCreateDto> Options { get; init; } = new();
-	public DateTime ExpirationDate { get; init; }
+	public DateTime ExpirationDate { get; init; } = DateTime.UtcNow.AddDays(3);
 }
 
 public class PollUpdateDto
 {
-	public string Question { get; init; }
+	public string Question { get; init; } = string.Empty;
 	public List<PollOptionCreateDto> Options { get; init; } = new();
-	public DateTime ExpirationDate { get; init; }
+	public DateTime ExpirationDate { get; init; } = DateTime.UtcNow.AddDays(3);
 }

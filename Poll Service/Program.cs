@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
 using PollSystem.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,10 +11,60 @@ builder.Services.AddDbContext<AppDbContext>(
 	options => options.UseMySql(dbConnectionString, ServerVersion.AutoDetect(dbConnectionString))
 );
 
+// Load keycloak configuration
+string keycloakAuthority = "http://localhost:8080/realms/MyRealm";
+string keycloakClientId = "dotnet-api";
+
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(
+	options =>
+	{
+		options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+		{
+			Type = SecuritySchemeType.OAuth2,
+			Flows = new OpenApiOAuthFlows
+			{
+				AuthorizationCode = new OpenApiOAuthFlow
+				{
+					AuthorizationUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/auth"),
+					TokenUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/token"),
+					Scopes = new Dictionary<string, string>
+					{
+						{ "openid", "OpenID Connect scope" },
+						{ "profile", "User profile" },
+						{ "email", "User email" }
+					}
+				}
+			}
+		});
+
+		options.AddSecurityRequirement(new OpenApiSecurityRequirement
+		{
+			{
+				new OpenApiSecurityScheme
+				{
+					Reference = new OpenApiReference
+					{
+						Type = ReferenceType.SecurityScheme,
+						Id = "oauth2"
+					}
+				},
+				new List<string> { "openid", "profile", "email" }
+			}
+		});
+	});
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+	.AddJwtBearer(
+		options =>
+		{
+			options.Authority = keycloakAuthority;
+			options.Audience = keycloakClientId;
+			options.RequireHttpsMetadata = false;
+		}
+	);
+builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -37,9 +89,18 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
-	app.UseSwaggerUI();
+	app.UseSwaggerUI(
+		options =>
+		{
+			options.SwaggerEndpoint("/swagger/v1/swagger.json", "Polls API V1");
+			options.OAuthClientId(keycloakClientId);
+			options.OAuthAppName("Polls API - Swagger");
+			options.OAuthUsePkce();
+		});
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.UseHttpsRedirection();
 app.Run();
