@@ -19,44 +19,44 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+// builder.Services.AddSwaggerGen(options =>
+// {
+//     options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 
-    // options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-    // {
-    //     Type = SecuritySchemeType.OAuth2,
-    //     Flows = new OpenApiOAuthFlows
-    //     {
-    //         AuthorizationCode = new OpenApiOAuthFlow
-    //         {
-    //             AuthorizationUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/auth"),
-    //             TokenUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/token"),
-    //             Scopes = new Dictionary<string, string>
-    //             {
-    //                 { "openid", "OpenID Connect scope" },
-    //                 { "profile", "User profile" },
-    //                 { "email", "User email" }
-    //             }
-    //         }
-    //     }
-    // });
+// options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+// {
+//     Type = SecuritySchemeType.OAuth2,
+//     Flows = new OpenApiOAuthFlows
+//     {
+//         AuthorizationCode = new OpenApiOAuthFlow
+//         {
+//             AuthorizationUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/auth"),
+//             TokenUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/token"),
+//             Scopes = new Dictionary<string, string>
+//             {
+//                 { "openid", "OpenID Connect scope" },
+//                 { "profile", "User profile" },
+//                 { "email", "User email" }
+//             }
+//         }
+//     }
+// });
 
-    // options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    // {
-    //     {
-    //         new OpenApiSecurityScheme
-    //         {
-    //             Reference = new OpenApiReference
-    //             {
-    //                 Type = ReferenceType.SecurityScheme,
-    //                 Id = "oauth2"
-    //             }
-    //         },
-    //         new List<string> { "openid", "profile", "email" }
-    //     }
-    // });
-});
+// options.AddSecurityRequirement(new OpenApiSecurityRequirement
+// {
+//     {
+//         new OpenApiSecurityScheme
+//         {
+//             Reference = new OpenApiReference
+//             {
+//                 Type = ReferenceType.SecurityScheme,
+//                 Id = "oauth2"
+//             }
+//         },
+//         new List<string> { "openid", "profile", "email" }
+//     }
+// });
+// });
 
 // builder.Services.AddAuthorization();
 // builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -110,13 +110,13 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(options =>
+    app.UseSwaggerUI( /*options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-        // options.OAuthClientId(keycloakClientId);
-        // options.OAuthAppName("My API - Swagger");
-        // options.OAuthUsePkce(); // Enables PKCE for security
-    });
+        options.OAuthClientId(keycloakClientId);
+        options.OAuthAppName("My API - Swagger");
+        options.OAuthUsePkce(); // Enables PKCE for security
+    }*/);
 }
 
 app.MapGet("/consumer", async () =>
