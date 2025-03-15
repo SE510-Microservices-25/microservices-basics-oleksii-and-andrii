@@ -1,2 +1,2 @@
-CREATE DATABASE service;
-\c service;
+CREATE DATABASE votes_db;
+\c votes_db;
