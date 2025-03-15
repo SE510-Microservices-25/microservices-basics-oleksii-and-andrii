@@ -9,8 +9,8 @@ using VoteSystem.Data;
 using VoteSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-const string keycloakAuthority = "http://localhost:8080/realms/MyRealm";
-const string keycloakClientId = "dotnet-api";
+// const string keycloakAuthority = "http://localhost:8080/realms/MyRealm";
+// const string keycloakClientId = "dotnet-api";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("VoteDbConnection")));
@@ -23,53 +23,53 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 
-    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-    {
-        Type = SecuritySchemeType.OAuth2,
-        Flows = new OpenApiOAuthFlows
-        {
-            AuthorizationCode = new OpenApiOAuthFlow
-            {
-                AuthorizationUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/auth"),
-                TokenUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/token"),
-                Scopes = new Dictionary<string, string>
-                {
-                    { "openid", "OpenID Connect scope" },
-                    { "profile", "User profile" },
-                    { "email", "User email" }
-                }
-            }
-        }
-    });
+    // options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    // {
+    //     Type = SecuritySchemeType.OAuth2,
+    //     Flows = new OpenApiOAuthFlows
+    //     {
+    //         AuthorizationCode = new OpenApiOAuthFlow
+    //         {
+    //             AuthorizationUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/auth"),
+    //             TokenUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/token"),
+    //             Scopes = new Dictionary<string, string>
+    //             {
+    //                 { "openid", "OpenID Connect scope" },
+    //                 { "profile", "User profile" },
+    //                 { "email", "User email" }
+    //             }
+    //         }
+    //     }
+    // });
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "oauth2"
-                }
-            },
-            new List<string> { "openid", "profile", "email" }
-        }
-    });
+    // options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    // {
+    //     {
+    //         new OpenApiSecurityScheme
+    //         {
+    //             Reference = new OpenApiReference
+    //             {
+    //                 Type = ReferenceType.SecurityScheme,
+    //                 Id = "oauth2"
+    //             }
+    //         },
+    //         new List<string> { "openid", "profile", "email" }
+    //     }
+    // });
 });
 
-builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(o =>
-    {
-        o.RequireHttpsMetadata = false;
-        o.Audience = builder.Configuration["Authentication:Audience"];
-        o.MetadataAddress = builder.Configuration["Authentication:MetadataAddress"]!;
-        o.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidIssuer = builder.Configuration["Authentication:ValidIssuer"]
-        };
-    });
+// builder.Services.AddAuthorization();
+// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//     .AddJwtBearer(o =>
+//     {
+//         o.RequireHttpsMetadata = false;
+//         o.Audience = builder.Configuration["Authentication:Audience"];
+//         o.MetadataAddress = builder.Configuration["Authentication:MetadataAddress"]!;
+//         o.TokenValidationParameters = new TokenValidationParameters
+//         {
+//             ValidIssuer = builder.Configuration["Authentication:ValidIssuer"]
+//         };
+//     });
 
 builder.Services.AddMassTransit(x =>
 {
@@ -77,7 +77,7 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host("localhost", h =>
+        cfg.Host("rabbitmq", h =>
         {
             h.Username("guest");
             h.Password("guest");
@@ -87,7 +87,7 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
-builder.Services.AddScoped<RabbitMqService>();
+builder.Services.AddSingleton<RabbitMqService>();
 
 var app = builder.Build();
 
@@ -113,9 +113,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-        options.OAuthClientId(keycloakClientId);
-        options.OAuthAppName("My API - Swagger");
-        options.OAuthUsePkce(); // Enables PKCE for security
+        // options.OAuthClientId(keycloakClientId);
+        // options.OAuthAppName("My API - Swagger");
+        // options.OAuthUsePkce(); // Enables PKCE for security
     });
 }
 
@@ -123,7 +123,7 @@ app.MapGet("/consumer", async () =>
 {
     var rabbitMqService = app.Services.GetRequiredService<RabbitMqService>();
     await rabbitMqService.SendMessage(new VoteCreated(1, 2, 3, 4, DateTime.Now));
-}).RequireAuthorization();
+});
 
 app.MapControllers();
 app.UseHttpsRedirection();
