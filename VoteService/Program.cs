@@ -9,8 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 // const string keycloakAuthority = "http://localhost:8080/realms/MyRealm";
 // const string keycloakClientId = "dotnet-api";
 
-builder.Services.AddDbContext<VotesDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("VoteDbConnection")));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
@@ -83,25 +81,28 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
+builder.Services.AddDbContext<VotesDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("VotesDbConnection")));
+builder.Services.AddScoped<VoteService>();
 builder.Services.AddTransient<RabbitMqService>();
 
 var app = builder.Build();
 
-// using (var scope = app.Services.CreateScope())
-// {
-//     var services = scope.ServiceProvider;
-//     try
-//     {
-//         var dbContext = services.GetRequiredService<AppDbContext>();
-//         dbContext.Database.Migrate();
-//         Console.WriteLine("Database migrated successfully!");
-//     }
-//     catch (Exception ex)
-//     {
-//         var logger = services.GetRequiredService<ILogger<Program>>();
-//         logger.LogError(ex, "An error occurred while migrating the database.");
-//     }
-// }
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var dbContext = services.GetRequiredService<VotesDbContext>();
+        dbContext.Database.Migrate();
+        Console.WriteLine("Database migrated successfully!");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {
