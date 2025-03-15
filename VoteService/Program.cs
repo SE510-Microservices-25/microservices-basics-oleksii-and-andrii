@@ -1,20 +1,16 @@
 using MassTransit;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using VoteSystem.Consumer;
-using VoteSystem.Contracts;
 using VoteSystem.Data;
+using VoteSystem.Models;
 using VoteSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 // const string keycloakAuthority = "http://localhost:8080/realms/MyRealm";
 // const string keycloakClientId = "dotnet-api";
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<VotesDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("VoteDbConnection")));
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
@@ -87,7 +83,7 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
-builder.Services.AddSingleton<RabbitMqService>();
+builder.Services.AddTransient<RabbitMqService>();
 
 var app = builder.Build();
 
@@ -122,7 +118,7 @@ if (app.Environment.IsDevelopment())
 app.MapGet("/consumer", async () =>
 {
     var rabbitMqService = app.Services.GetRequiredService<RabbitMqService>();
-    await rabbitMqService.SendMessage(new VoteCreated(1, 2, 3, 4, DateTime.Now));
+    await rabbitMqService.SendMessage(new Vote(1, 2, 3, 4, DateTime.UtcNow));
 });
 
 app.MapControllers();

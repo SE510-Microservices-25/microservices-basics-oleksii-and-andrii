@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+namespace VoteSystem.Controllers;
+
 [ApiController]
 [Route("api/secure")]
 [Authorize]  // Protects this endpoint with Keycloak authentication

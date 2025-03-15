@@ -1,21 +1,13 @@
 ﻿using MassTransit;
-using Microsoft.Extensions.Logging;
-using VoteSystem.Contracts;
+using VoteSystem.Models;
 
 namespace VoteSystem.Consumer;
 
-public class VoteCreatedConsumer : IConsumer<VoteCreated>
+public class VoteCreatedConsumer(ILogger<VoteCreatedConsumer> logger) : IConsumer<Vote>
 {
-    private readonly ILogger<VoteCreatedConsumer> _logger;
-
-    public VoteCreatedConsumer(ILogger<VoteCreatedConsumer> logger)
+    public Task Consume(ConsumeContext<Vote> context)
     {
-        _logger = logger;
-    }
-
-    public Task Consume(ConsumeContext<VoteCreated> context)
-    {
-        _logger.LogInformation($"Vote received: Id: {context.Message.Id}, Date: {context.Message.Date}");
+        logger.LogInformation($"Vote received: Id: {context.Message.Id}, Date: {context.Message.CreatedAt}");
         return Task.CompletedTask;
     }
 }
