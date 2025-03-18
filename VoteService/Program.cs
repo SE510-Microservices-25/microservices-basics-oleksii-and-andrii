@@ -1,4 +1,5 @@
 using MassTransit;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using VoteSystem.Consumer;
 using VoteSystem.Data;
@@ -83,6 +84,7 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddDbContext<VotesDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("VotesDbConnection")));
+builder.Services.AddMediatR(typeof(Program).Assembly);
 builder.Services.AddScoped<VoteService>();
 builder.Services.AddTransient<RabbitMqService>();
 
