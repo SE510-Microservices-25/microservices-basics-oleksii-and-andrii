@@ -1,10 +1,11 @@
-﻿using VoteSystem.Entities;
+﻿using MassTransit;
+using VoteSystem.Entities;
 using VoteSystem.Models;
 using VoteSystem.Repository;
 
 namespace VoteSystem.Services;
 
-public class VoteService(VotesRepository repository)
+public class VoteService(VotesRepository repository, IBus bus)
 {
     public async Task<List<Vote>> GetAllVotes(CancellationToken cancellationToken = default)
     {
@@ -27,10 +28,11 @@ public class VoteService(VotesRepository repository)
         var voteEntity = new VoteEntity(vote.PollId, vote.UserId, vote.ChoiceId, DateTime.UtcNow);
 
         var dbVote = await repository.CreateVoteAsync(voteEntity, cancellationToken);
+        if (dbVote == null) return null;
 
-        return dbVote == null
-            ? null
-            : new Vote(dbVote.Id, dbVote.PollId, dbVote.UserId, dbVote.ChoiceId, dbVote.CreatedAt);
+        var newVote = new Vote(dbVote.Id, dbVote.PollId, dbVote.UserId, dbVote.ChoiceId, dbVote.CreatedAt);
+        await bus.Publish(newVote, cancellationToken);
+        return newVote;
     }
 
     public async Task<bool> DeleteVote(long id, CancellationToken cancellationToken = default)
@@ -42,7 +44,6 @@ public class VoteService(VotesRepository repository)
     public async Task<List<Dictionary<long, int>>?> GetAllResults(CancellationToken cancellationToken = default)
     {
         var results = await repository.GetAllResultsAsync(cancellationToken);
-
         return results;
     }
 

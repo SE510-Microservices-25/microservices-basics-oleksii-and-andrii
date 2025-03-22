@@ -88,7 +88,6 @@ builder.Services.AddDbContext<VotesDbContext>(options =>
 builder.Services.AddScoped<VotesRepository>();
 builder.Services.AddScoped<VoteService>();
 builder.Services.AddMediatR(typeof(Program).Assembly);
-builder.Services.AddScoped<RabbitMqService>();
 
 var app = builder.Build();
 
@@ -119,12 +118,6 @@ if (app.Environment.IsDevelopment())
         options.OAuthUsePkce(); // Enables PKCE for security
     }*/);
 }
-
-app.MapGet("/consumer", async () =>
-{
-    var rabbitMqService = app.Services.GetRequiredService<RabbitMqService>();
-    await rabbitMqService.SendMessage(new Vote(1, 2, 3, 4, DateTime.UtcNow));
-});
 
 app.MapControllers();
 app.UseHttpsRedirection();
