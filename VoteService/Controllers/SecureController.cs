@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace VoteSystem.Controllers;
 
 [ApiController]
-[Route("api/secure")]
-[Authorize]  // Protects this endpoint with Keycloak authentication
+[Route("secure")]
+[Authorize]
 public class SecureController : ControllerBase
 {
     [HttpGet]

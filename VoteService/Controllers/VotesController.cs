@@ -1,52 +1,55 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using VoteSystem.Command;
 using VoteSystem.Models;
-using VoteSystem.Services;
+using VoteSystem.Query;
 
 namespace VoteSystem.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class VotesController(VoteService voteService) : ControllerBase
+public class VotesController(IMediator mediator) : ControllerBase
 {
     [HttpGet("/")]
-    public IActionResult GetAllVotes()
+    public async Task<IActionResult> GetAllVotes()
     {
-        return Ok(voteService.GetAllVotes());
+        var votes = await mediator.Send(new GetVotesQuery());
+        return Ok(votes);
     }
 
     [HttpGet("/{pollId:int}")]
-    public IActionResult GetVotes([FromRoute] int pollId)
+    public async Task<IActionResult> GetVotes([FromRoute] int pollId)
     {
-        var votes = voteService.GetVotes(pollId);
+        var votes = await mediator.Send(new GetVotesByPollQuery(pollId));
         return votes is null ? Problem("Poll not found") : Ok(votes);
     }
 
     [HttpPost("/")]
-    public IActionResult RegisterVote(VoteData voteData)
+    public async Task<IActionResult> RegisterVote(VoteData vd)
     {
-        var vote = voteService.CreateVote(voteData).Result;
+        var vote = await mediator.Send(new CreateVoteCommand(vd.PollId, vd.UserId, vd.ChoiceId));
         return vote == null ? Problem("Vote not registered") : Ok(vote);
     }
 
     [HttpDelete("/")]
-    public IActionResult UnregisterVote(long id)
+    public async Task<IActionResult> UnregisterVote(long id)
     {
-        var voteDeleted = voteService.DeleteVote(id).Result;
+        var voteDeleted = await mediator.Send(new DeleteVoteCommand(id));
 
         return voteDeleted ? NoContent() : NotFound("Vote not found");
     }
 
     [HttpGet("/result/")]
-    public IActionResult GetAllResults()
+    public async Task<IActionResult> GetAllResults()
     {
-        var result = voteService.GetAllVotesByPoll();
+        var result = await mediator.Send(new GetAllResultsQuery());
         return result == null ? Problem("No votes registered") : Ok(result);
     }
 
     [HttpGet("/result/{pollId:int}")]
-    public IActionResult GetResult([FromRoute] int pollId)
+    public async Task<IActionResult> GetResult([FromRoute] int pollId)
     {
-        var result = voteService.GetVotesByPoll(pollId);
+        var result = await mediator.Send(new GetResultsQuery(pollId));
         return result == null ? Problem("Poll not found") : Ok(result);
     }
 

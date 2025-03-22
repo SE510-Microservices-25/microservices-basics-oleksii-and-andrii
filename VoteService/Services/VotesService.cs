@@ -1,86 +1,54 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using VoteSystem.Data;
-using VoteSystem.Entities;
+﻿using VoteSystem.Entities;
 using VoteSystem.Models;
+using VoteSystem.Repository;
 
 namespace VoteSystem.Services;
 
-public class VoteService(VotesDbContext context)
+public class VoteService(VotesRepository repository)
 {
-    public List<Vote> GetAllVotes()
+    public async Task<List<Vote>> GetAllVotes(CancellationToken cancellationToken = default)
     {
-        var votes = context.Votes.ToList();
+        var votes = await repository.GetAllVotesAsync(cancellationToken);
 
         return votes.Select(v => new Vote(v.Id, v.PollId, v.UserId, v.ChoiceId, v.CreatedAt)).ToList();
     }
 
-    public List<Vote>? GetVotes(long pollId)
+    public async Task<List<Vote>> GetVotes(long pollId, CancellationToken cancellationToken = default)
     {
-        var votes = context.Votes.Where(v => v.PollId == pollId).ToList();
-
-        if (votes.Count == 0) return null;
+        var votes = await repository.GetVoteByPollIdAsync(pollId, cancellationToken);
 
         return votes.Select(v => new Vote(v.Id, v.PollId, v.UserId, v.ChoiceId, v.CreatedAt)).ToList();
     }
 
-    public async Task<Vote?> CreateVote(VoteData? vote)
+    public async Task<Vote?> CreateVote(VoteData? vote, CancellationToken cancellationToken = default)
     {
         if (vote == null) return null;
 
-        var dbVote = new VoteEntity(vote.PollId, vote.UserId, vote.ChoiceId, DateTime.UtcNow);
+        var voteEntity = new VoteEntity(vote.PollId, vote.UserId, vote.ChoiceId, DateTime.UtcNow);
 
-        try
-        {
-            context.Votes.Add(dbVote);
-            await context.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            return null;
-        }
+        var dbVote = await repository.CreateVoteAsync(voteEntity, cancellationToken);
 
-        return new Vote(dbVote.Id, dbVote.PollId, dbVote.UserId, dbVote.ChoiceId, dbVote.CreatedAt);
+        return dbVote == null
+            ? null
+            : new Vote(dbVote.Id, dbVote.PollId, dbVote.UserId, dbVote.ChoiceId, dbVote.CreatedAt);
     }
 
-    public async Task<bool> DeleteVote(long id)
+    public async Task<bool> DeleteVote(long id, CancellationToken cancellationToken = default)
     {
-        var vote = context.Votes.FirstOrDefault(v => v.Id == id);
-
-        if (vote == null) return false;
-
-        try
-        {
-            context.Votes.Remove(vote);
-            await context.SaveChangesAsync();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            return false;
-        }
-
-        return true;
+        var result = await repository.DeleteVoteAsync(id, cancellationToken);
+        return result;
     }
 
-    public List<Dictionary<long, int>>? GetAllVotesByPoll()
+    public async Task<List<Dictionary<long, int>>?> GetAllResults(CancellationToken cancellationToken = default)
     {
-        var votes = context.Votes.GroupBy(v => v.PollId).ToList();
+        var results = await repository.GetAllResultsAsync(cancellationToken);
 
-        if (votes.Count == 0) return null;
-
-        return votes.Select(v => v.GroupBy(vote => vote.ChoiceId)
-            .ToDictionary(group => group.Key, group => group.Count())).ToList();
+        return results;
     }
 
-    public Dictionary<long, int>? GetVotesByPoll(long pollId)
+    public async Task<Dictionary<long, int>?> GetResults(long pollId, CancellationToken cancellationToken = default)
     {
-        var votes = context.Votes.Where(v => v.PollId == pollId).ToList();
-
-        if (votes.Count == 0) return null;
-
-        return votes.GroupBy(vote => vote.ChoiceId)
-            .ToDictionary(group => group.Key, group => group.Count());
+        var results = await repository.GetResultsAsync(pollId, cancellationToken);
+        return results;
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using VoteSystem.Consumer;
 using VoteSystem.Data;
 using VoteSystem.Models;
+using VoteSystem.Repository;
 using VoteSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -72,7 +73,7 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host("rabbitmq", h =>
+        cfg.Host("localhost", h =>
         {
             h.Username("guest");
             h.Password("guest");
@@ -83,10 +84,11 @@ builder.Services.AddMassTransit(x =>
 });
 
 builder.Services.AddDbContext<VotesDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("VotesDbConnection")));
-builder.Services.AddMediatR(typeof(Program).Assembly);
+    options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
+builder.Services.AddScoped<VotesRepository>();
 builder.Services.AddScoped<VoteService>();
-builder.Services.AddTransient<RabbitMqService>();
+builder.Services.AddMediatR(typeof(Program).Assembly);
+builder.Services.AddScoped<RabbitMqService>();
 
 var app = builder.Build();
 
