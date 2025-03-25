@@ -31,7 +31,7 @@ spec:
                 name: keycloak-service
                 port:
                   number: 5064
-          - path: /(.*\.css|.*\.js|.*\.png|.*\.woff|.*\.ico)
+          - path: /resources/(.*\.css|.*\.js|.*\.png|.*\.woff|.*\.ico)
             pathType: ImplementationSpecific
             backend:
               service:
