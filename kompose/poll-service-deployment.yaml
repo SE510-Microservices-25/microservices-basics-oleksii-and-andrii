@@ -16,6 +16,12 @@ spec:
     spec:
       containers:
         - env:
+            - name: RABBITMQ_HOST
+              value: "rabbitmq"
+            - name: RABBITMQ_USER
+              value: "guest"
+            - name: RABBITMQ_PASS
+              value: "guest"
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__PollDbConnection
