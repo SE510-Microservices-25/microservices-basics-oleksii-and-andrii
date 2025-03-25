@@ -101,7 +101,7 @@ builder.Services.AddMassTransit(
 		);
 	}
 );
-builder.Services.AddScoped<RabbitMqService>();
+builder.Services.AddTransient<RabbitMqService>();
 
 var app = builder.Build();
 
