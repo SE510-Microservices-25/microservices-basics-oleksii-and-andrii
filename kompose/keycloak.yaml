@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: keycloak-deployment
+  name: keycloak-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak-deployment
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: keycloak-deployment
+    spec:
+      containers:
+      - image: quay.io/keycloak/keycloak
+        args: ["start-dev", "--import-realm"]
+        name: keycloak
+        env:
+          - name: KC_BOOTSTRAP_ADMIN_USERNAME
+            value: admin
+          - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+            value: admin
+        ports:
+          - name: http
+            containerPort: 8080
+        volumeMounts:
+          - name: keycloak-volume
+            mountPath: /opt/keycloak/data/import
+        resources: {}
+      volumes:
+        - name: keycloak-volume
+          configMap:
+            name: keycloak-configmap
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-service
+  labels:
+    app: keycloak-deployment
+spec:
+  selector:
+    app: keycloak-deployment
+  ports:
+    - protocol: TCP
+      port: 5064
+      targetPort: 8080
