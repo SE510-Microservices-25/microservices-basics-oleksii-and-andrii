@@ -4,6 +4,7 @@ using Microsoft.OpenApi.Models;
 using PollSystem.Data;
 using MassTransit;
 using PollSystem.Consumers;
+using PollSystem.Entities;
 using PollSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -79,6 +80,8 @@ builder.Services.AddControllers();
 builder.Services.AddMassTransit(
 	x =>
 	{
+		x.AddConsumer<PollCreatedConsumer>();
+
 		x.UsingRabbitMq(
 			(context, cfg) =>
 			{
@@ -89,33 +92,16 @@ builder.Services.AddMassTransit(
 						h.Password("guest");
 					}
 				);
-			}
-		);
-	}
-);
-builder.Services.AddScoped<RabbitMqService>();
-
-// Register the consumer
-builder.Services.AddMassTransit(
-	x =>
-	{
-		x.AddConsumer<PollCreatedConsumer>();
-		x.UsingRabbitMq(
-			(context, cfg) =>
-			{
-				cfg.Host("rabbitmq", h =>
-				{
-					h.Username("guest");
-					h.Password("guest");
-				});
 
 				cfg.ReceiveEndpoint("poll-created-queue", e =>
 				{
 					e.ConfigureConsumer<PollCreatedConsumer>(context);
 				});
-			});
+			}
+		);
 	}
 );
+builder.Services.AddScoped<RabbitMqService>();
 
 var app = builder.Build();
 
@@ -149,6 +135,22 @@ if (app.Environment.IsDevelopment())
 		}
 	);
 }
+
+app.MapGet(
+	"/consumer", async () =>
+	{
+		var rabbitMqService = app.Services.GetRequiredService<RabbitMqService>();
+		await rabbitMqService.SendMessage(new PollCreateDto()
+		{
+			Question = "Hello world?",
+			Options = new List<PollOptionCreateDto>()
+			{
+				new PollOptionCreateDto() { Text = "Yes" },
+				new PollOptionCreateDto() { Text = "No" }
+			}
+		});
+	}
+);
 
 app.UseAuthentication();
 app.UseAuthorization();
