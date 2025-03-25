@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using PollSystem.Data;
+using MassTransit;
+using PollSystem.Consumers;
+using PollSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,40 +24,45 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
 	options =>
 	{
-		options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-		{
-			Type = SecuritySchemeType.OAuth2,
-			Flows = new OpenApiOAuthFlows
+		options.AddSecurityDefinition(
+			"oauth2", new OpenApiSecurityScheme
 			{
-				AuthorizationCode = new OpenApiOAuthFlow
+				Type = SecuritySchemeType.OAuth2,
+				Flows = new OpenApiOAuthFlows
 				{
-					AuthorizationUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/auth"),
-					TokenUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/token"),
-					Scopes = new Dictionary<string, string>
+					AuthorizationCode = new OpenApiOAuthFlow
 					{
-						{ "openid", "OpenID Connect scope" },
-						{ "profile", "User profile" },
-						{ "email", "User email" }
+						AuthorizationUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/auth"),
+						TokenUrl = new Uri($"{keycloakAuthority}/protocol/openid-connect/token"),
+						Scopes = new Dictionary<string, string>
+						{
+							{ "openid", "OpenID Connect scope" },
+							{ "profile", "User profile" },
+							{ "email", "User email" }
+						}
 					}
 				}
 			}
-		});
+		);
 
-		options.AddSecurityRequirement(new OpenApiSecurityRequirement
-		{
+		options.AddSecurityRequirement(
+			new OpenApiSecurityRequirement
 			{
-				new OpenApiSecurityScheme
 				{
-					Reference = new OpenApiReference
+					new OpenApiSecurityScheme
 					{
-						Type = ReferenceType.SecurityScheme,
-						Id = "oauth2"
-					}
-				},
-				new List<string> { "openid", "profile", "email" }
+						Reference = new OpenApiReference
+						{
+							Type = ReferenceType.SecurityScheme,
+							Id = "oauth2"
+						}
+					},
+					new List<string> { "openid", "profile", "email" }
+				}
 			}
-		});
-	});
+		);
+	}
+);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddJwtBearer(
 		options =>
@@ -66,6 +74,48 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	);
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+
+// Register RabbitMqService
+builder.Services.AddMassTransit(
+	x =>
+	{
+		x.UsingRabbitMq(
+			(context, cfg) =>
+			{
+				cfg.Host(
+					"rabbitmq", h =>
+					{
+						h.Username("guest");
+						h.Password("guest");
+					}
+				);
+			}
+		);
+	}
+);
+builder.Services.AddScoped<RabbitMqService>();
+
+// Register the consumer
+builder.Services.AddMassTransit(
+	x =>
+	{
+		x.AddConsumer<PollCreatedConsumer>();
+		x.UsingRabbitMq(
+			(context, cfg) =>
+			{
+				cfg.Host("rabbitmq", h =>
+				{
+					h.Username("guest");
+					h.Password("guest");
+				});
+
+				cfg.ReceiveEndpoint("poll-created-queue", e =>
+				{
+					e.ConfigureConsumer<PollCreatedConsumer>(context);
+				});
+			});
+	}
+);
 
 var app = builder.Build();
 
@@ -96,7 +146,8 @@ if (app.Environment.IsDevelopment())
 			options.OAuthClientId(keycloakClientId);
 			options.OAuthAppName("Polls API - Swagger");
 			options.OAuthUsePkce();
-		});
+		}
+	);
 }
 
 app.UseAuthentication();
