@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VoteSystem.Command;
 using VoteSystem.Models;
@@ -7,31 +8,38 @@ using VoteSystem.Query;
 namespace VoteSystem.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("votes")]
+[Authorize]
 public class VotesController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("/")]
+    [HttpGet("secure")]
+    public IActionResult Get()
+    {
+        return Ok("You are authenticated!");
+    }
+
+    [HttpGet]
     public async Task<IActionResult> GetAllVotes()
     {
         var votes = await mediator.Send(new GetVotesQuery());
         return Ok(votes);
     }
 
-    [HttpGet("/{pollId:int}")]
+    [HttpGet("{pollId:int}")]
     public async Task<IActionResult> GetVotes([FromRoute] int pollId)
     {
         var votes = await mediator.Send(new GetVotesByPollQuery(pollId));
-        return votes is null ? Problem("Poll not found") : Ok(votes);
+        return Ok(votes);
     }
 
-    [HttpPost("/")]
+    [HttpPost]
     public async Task<IActionResult> RegisterVote(VoteData vd)
     {
         var vote = await mediator.Send(new CreateVoteCommand(vd.PollId, vd.UserId, vd.ChoiceId));
         return vote == null ? Problem("Vote not registered") : Ok(vote);
     }
 
-    [HttpDelete("/")]
+    [HttpDelete]
     public async Task<IActionResult> UnregisterVote(long id)
     {
         var voteDeleted = await mediator.Send(new DeleteVoteCommand(id));
@@ -39,14 +47,14 @@ public class VotesController(IMediator mediator) : ControllerBase
         return voteDeleted ? NoContent() : NotFound("Vote not found");
     }
 
-    [HttpGet("/result/")]
+    [HttpGet("result")]
     public async Task<IActionResult> GetAllResults()
     {
         var result = await mediator.Send(new GetAllResultsQuery());
         return result == null ? Problem("No votes registered") : Ok(result);
     }
 
-    [HttpGet("/result/{pollId:int}")]
+    [HttpGet("result/{pollId:int}")]
     public async Task<IActionResult> GetResult([FromRoute] int pollId)
     {
         var result = await mediator.Send(new GetResultsQuery(pollId));

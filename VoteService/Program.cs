@@ -10,8 +10,9 @@ using VoteSystem.Repository;
 using VoteSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-const string keycloakAuthority = "http://keycloak:5064/realms/MyRealm";
+const string keycloakAuthority = "http://microservices.local/realms/MyRealm";
 const string keycloakClientId = "dotnet-api";
+const string globalRouteAttribute = "votes";
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -112,13 +113,13 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger(options =>
-        {
-        options.RouteTemplate = "votes/swagger/{documentName}/swagger.json";
+    {
+        options.RouteTemplate = $"{globalRouteAttribute}/swagger/{{documentName}}/swagger.json";
     });
     app.UseSwaggerUI(options =>
     {
-        options.RoutePrefix = "votes/swagger";
-        options.SwaggerEndpoint("/votes/swagger/v1/swagger.json", "My API V1");
+        options.RoutePrefix = $"{globalRouteAttribute}/swagger";
+        options.SwaggerEndpoint($"/{globalRouteAttribute}/swagger/v1/swagger.json", "My API V1");
         options.OAuthClientId(keycloakClientId);
         options.OAuthAppName("My API - Swagger");
         options.OAuthUsePkce(); // Enables PKCE for security
