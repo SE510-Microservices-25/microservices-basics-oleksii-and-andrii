@@ -19,7 +19,7 @@ public class GetVotesHandler(VoteService service)
     }
 }
 
-public class GerResultsHandler(VoteService service)
+public class GetResultsHandler(VoteService service)
     : IRequestHandler<GetAllResultsQuery, List<Dictionary<long, int>>?>,
         IRequestHandler<GetResultsQuery, Dictionary<long, int>?>
 {
