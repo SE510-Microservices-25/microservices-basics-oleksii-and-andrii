@@ -1,3 +1,11 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgre-db-secret
+type: Opaque
+data:
+  DbConnection: SG9zdD1kYXRhYmFzZTtQb3J0PTU0MzI7VXNlciBJZD1wb3N0Z3JlcztEYXRhYmFzZT1zZXJ2aWNlO1Bhc3N3b3JkPTFxMnczZTRyOw==
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -27,7 +35,7 @@ spec:
             - name: ConnectionStrings__VoteDbConnection
               valueFrom:
                 secretKeyRef:
-                  name: db-secret
+                  name: postgre-db-secret
                   key: DbConnection
           image: ostepanyk/vote_service
           name: vote-service
