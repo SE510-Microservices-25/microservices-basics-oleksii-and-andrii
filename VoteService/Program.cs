@@ -111,7 +111,10 @@ using (var scope = app.Services.CreateScope())
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.UseSwagger(options =>
+        {
+        options.RouteTemplate = "votes/swagger/{documentName}/swagger.json";
+    });
     app.UseSwaggerUI(options =>
     {
         options.RoutePrefix = "votes/swagger";
