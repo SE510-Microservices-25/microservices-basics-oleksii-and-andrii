@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: microservices-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
   rules:
@@ -24,3 +24,17 @@ spec:
                 name: vote-service
                 port:
                   number: 5001
+          - path: /realms/(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: keycloak-service
+                port:
+                  number: 5064
+          - path: /(.*\.css|.*\.js|.*\.png|.*\.woff|.*\.ico)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: keycloak-service
+                port:
+                  number: 5064
