@@ -3,7 +3,7 @@ data:
   realm.json: |
     {
       "id": "8bf4706e-3203-4d98-9947-01c1a305c4bb",
-      "realm": "VotesRealm",
+      "realm": "MyRealm",
       "notBefore": 0,
       "defaultSignatureAlgorithm": "RS256",
       "revokeRefreshToken": false,

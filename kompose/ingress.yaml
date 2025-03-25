@@ -17,7 +17,7 @@ spec:
                 name: poll-service
                 port:
                   number: 5002
-          - path: /votes/(.*)
+          - path: /votes(.*)
             pathType: ImplementationSpecific
             backend:
               service:
