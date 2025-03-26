@@ -32,7 +32,7 @@ spec:
               value: "guest"
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
-            - name: ConnectionStrings__VoteDbConnection
+            - name: ConnectionStrings__VotesDbConnection
               valueFrom:
                 secretKeyRef:
                   name: postgre-db-secret
