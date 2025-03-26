@@ -10,9 +10,9 @@ using VoteSystem.Repository;
 using VoteSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-const string keycloakAuthority = "http://microservices.local/realms/MyRealm";
-const string keycloakClientId = "dotnet-api";
 const string globalRouteAttribute = "votes";
+var keycloakAuthority = builder.Configuration["Authentication:ValidIssuer"];
+var keycloakClientId = builder.Configuration["Authentication:ClientID"];
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -126,6 +126,8 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.UseHttpsRedirection();
 app.Run();
