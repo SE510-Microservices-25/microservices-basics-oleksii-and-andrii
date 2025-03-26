@@ -13,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 const string globalRouteAttribute = "votes";
 var keycloakAuthority = builder.Configuration["Authentication:ValidIssuer"];
 var keycloakClientId = builder.Configuration["Authentication:ClientID"];
+var keycloakInternalUrl = builder.Configuration["Keycloak:InternalUrl"];
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -22,7 +23,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 
-    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("Keycloak", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.OAuth2,
         Flows = new OpenApiOAuthFlows
@@ -49,7 +50,7 @@ builder.Services.AddSwaggerGen(options =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "oauth2"
+                    Id = "Keycloak"
                 }
             },
             new List<string> { "openid", "profile", "email" }
@@ -62,11 +63,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
     {
         o.RequireHttpsMetadata = false;
-        o.Audience = builder.Configuration["Authentication:Audience"];
+        o.Audience = builder.Configuration["Authentication:ClientID"];
         o.MetadataAddress = builder.Configuration["Authentication:MetadataAddress"]!;
         o.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidIssuer = builder.Configuration["Authentication:ValidIssuer"]
+            ValidIssuer = builder.Configuration["Authentication:ValidIssuer"],
+            IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
+            {
+                using var httpClient = new HttpClient();
+                var jwksUri = $"{keycloakInternalUrl}/realms/MyRealm/protocol/openid-connect/certs";
+                var jwks = httpClient.GetStringAsync(jwksUri).Result;
+                var keys = new JsonWebKeySet(jwks);
+                return keys.GetSigningKeys().Where(k => k.KeyId == kid);
+            }
         };
     });
 
