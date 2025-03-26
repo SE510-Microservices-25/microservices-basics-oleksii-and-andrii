@@ -1,9 +1,11 @@
 apiVersion: v1
 data:
   realm.json: |
-    {
+      {
       "id": "8bf4706e-3203-4d98-9947-01c1a305c4bb",
       "realm": "MyRealm",
+      "displayName": "",
+      "displayNameHtml": "",
       "notBefore": 0,
       "defaultSignatureAlgorithm": "RS256",
       "revokeRefreshToken": false,
@@ -29,7 +31,7 @@ data:
       "oauth2DeviceCodeLifespan": 600,
       "oauth2DevicePollingInterval": 5,
       "enabled": true,
-      "sslRequired": "external",
+      "sslRequired": "none",
       "registrationAllowed": true,
       "registrationEmailAsUsername": false,
       "rememberMe": false,
@@ -714,6 +716,22 @@ data:
           "authenticationFlowBindingOverrides": {},
           "fullScopeAllowed": true,
           "nodeReRegistrationTimeout": -1,
+          "protocolMappers": [
+            {
+              "id": "2d51881d-e926-4c47-ac59-1ab8b66d399f",
+              "name": "aud-mapper-dotnet-api",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-audience-mapper",
+              "consentRequired": false,
+              "config": {
+                "included.client.audience": "dotnet-api",
+                "id.token.claim": "true",
+                "lightweight.claim": "false",
+                "access.token.claim": "true",
+                "introspection.token.claim": "true"
+              }
+            }
+          ],
           "defaultClientScopes": [
             "web-origins",
             "acr",
@@ -1387,34 +1405,6 @@ data:
           ]
         },
         {
-          "id": "3940cdbc-eb2e-4dc8-a97d-a303e0dd08e4",
-          "name": "dotnet-api-scope",
-          "description": "",
-          "protocol": "openid-connect",
-          "attributes": {
-            "include.in.token.scope": "false",
-            "display.on.consent.screen": "true",
-            "gui.order": "",
-            "consent.screen.text": ""
-          },
-          "protocolMappers": [
-            {
-              "id": "64580694-c743-499b-85f8-f74154a28545",
-              "name": "dotnet-api",
-              "protocol": "openid-connect",
-              "protocolMapper": "oidc-audience-mapper",
-              "consentRequired": false,
-              "config": {
-                "included.client.audience": "dotnet-api",
-                "id.token.claim": "false",
-                "lightweight.claim": "false",
-                "access.token.claim": "true",
-                "introspection.token.claim": "true"
-              }
-            }
-          ]
-        },
-        {
           "id": "247d5748-d923-49ec-886f-24dba465f518",
           "name": "acr",
           "description": "OpenID Connect scope for add acr (authentication context class reference) to the token",
@@ -1628,14 +1618,14 @@ data:
             "subComponents": {},
             "config": {
               "allowed-protocol-mapper-types": [
-                "saml-user-attribute-mapper",
-                "oidc-usermodel-property-mapper",
-                "saml-role-list-mapper",
-                "oidc-usermodel-attribute-mapper",
                 "oidc-address-mapper",
-                "saml-user-property-mapper",
                 "oidc-full-name-mapper",
-                "oidc-sha256-pairwise-sub-mapper"
+                "saml-user-property-mapper",
+                "saml-role-list-mapper",
+                "oidc-usermodel-property-mapper",
+                "oidc-sha256-pairwise-sub-mapper",
+                "saml-user-attribute-mapper",
+                "oidc-usermodel-attribute-mapper"
               ]
             }
           },
@@ -1691,14 +1681,14 @@ data:
             "subComponents": {},
             "config": {
               "allowed-protocol-mapper-types": [
-                "saml-user-attribute-mapper",
                 "saml-user-property-mapper",
-                "oidc-sha256-pairwise-sub-mapper",
                 "oidc-usermodel-property-mapper",
-                "oidc-full-name-mapper",
+                "saml-user-attribute-mapper",
+                "oidc-sha256-pairwise-sub-mapper",
                 "oidc-address-mapper",
-                "saml-role-list-mapper",
-                "oidc-usermodel-attribute-mapper"
+                "oidc-usermodel-attribute-mapper",
+                "oidc-full-name-mapper",
+                "saml-role-list-mapper"
               ]
             }
           }
@@ -2490,17 +2480,19 @@ data:
       "firstBrokerLoginFlow": "first broker login",
       "attributes": {
         "cibaBackchannelTokenDeliveryMode": "poll",
-        "cibaExpiresIn": "120",
         "cibaAuthRequestedUserHint": "login_hint",
-        "oauth2DeviceCodeLifespan": "600",
         "clientOfflineSessionMaxLifespan": "0",
         "oauth2DevicePollingInterval": "5",
         "clientSessionIdleTimeout": "0",
-        "parRequestUriLifespan": "60",
-        "clientSessionMaxLifespan": "0",
         "clientOfflineSessionIdleTimeout": "0",
         "cibaInterval": "5",
-        "realmReusableOtpCode": "false"
+        "realmReusableOtpCode": "false",
+        "cibaExpiresIn": "120",
+        "oauth2DeviceCodeLifespan": "600",
+        "parRequestUriLifespan": "60",
+        "clientSessionMaxLifespan": "0",
+        "frontendUrl": "",
+        "acr.loa.map": "{}"
       },
       "keycloakVersion": "26.1.4",
       "userManagedAccessAllowed": false,
@@ -2513,7 +2505,7 @@ data:
       "clientPolicies": {
         "policies": []
       }
-    }
+      }
 kind: ConfigMap
 metadata:
   name: keycloak-configmap
