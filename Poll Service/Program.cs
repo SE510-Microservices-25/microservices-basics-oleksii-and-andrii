@@ -128,7 +128,7 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI(
 		options =>
 		{
-			options.SwaggerEndpoint("/swagger/v1/swagger.json", "Polls API V1");
+			options.SwaggerEndpoint("/polls/swagger/v1/swagger.json", "Polls API V1");
 			options.OAuthClientId(keycloakClientId);
 			options.OAuthAppName("Polls API - Swagger");
 			options.OAuthUsePkce();
