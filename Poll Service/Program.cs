@@ -1,11 +1,13 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.OpenApi.Models;
-using PollSystem.Data;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using PollSystem.Consumers;
+using PollSystem.Data;
 using PollSystem.Entities;
+using PollSystem.Repositories;
 using PollSystem.Services;
+using PollSystem.Votes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,18 +95,28 @@ builder.Services.AddMassTransit(
 					}
 				);
 
-				cfg.ReceiveEndpoint("poll-created-queue", e =>
-				{
-					e.ConfigureConsumer<PollCreatedConsumer>(context);
-				});
+				cfg.ReceiveEndpoint(
+					"poll-created-queue", e =>
+					{
+						e.ConfigureConsumer<PollCreatedConsumer>(context);
+					}
+				);
 			}
 		);
 	}
 );
 builder.Services.AddTransient<RabbitMqService>();
 
+// Add services, repositories
+builder.Services.AddScoped<PollsService>();
+builder.Services.AddScoped<PollsRepository>();
+
+// Register MediatR
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
 var app = builder.Build();
 
+// Automated DB migration
 using (var scope = app.Services.CreateScope())
 {
 	var services = scope.ServiceProvider;
@@ -140,15 +152,17 @@ app.MapGet(
 	"/consumer", async () =>
 	{
 		var rabbitMqService = app.Services.GetRequiredService<RabbitMqService>();
-		await rabbitMqService.SendMessage(new PollCreateDto()
-		{
-			Question = "Hello world?",
-			Options = new List<PollOptionCreateDto>()
+		await rabbitMqService.SendMessage(
+			new PollCreateDto()
 			{
-				new PollOptionCreateDto() { Text = "Yes" },
-				new PollOptionCreateDto() { Text = "No" }
+				Question = "Hello world? 01.04.2025",
+				Options = new List<PollOptionCreateDto>()
+				{
+					new PollOptionCreateDto() { Text = "Yes" },
+					new PollOptionCreateDto() { Text = "No" }
+				}
 			}
-		});
+		);
 	}
 );
 
