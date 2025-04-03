@@ -85,7 +85,7 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host("rabbitmq", h =>
+        cfg.Host("localhost", h =>
         {
             h.Username("guest");
             h.Password("guest");
@@ -96,7 +96,7 @@ builder.Services.AddMassTransit(x =>
 });
 
 builder.Services.AddDbContext<VotesDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("VotesDbConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("LocalDbConnection")));
 builder.Services.AddScoped<VotesRepository>();
 builder.Services.AddScoped<VoteService>();
 builder.Services.AddMediatR(typeof(Program).Assembly);

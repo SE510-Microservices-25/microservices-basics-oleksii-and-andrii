@@ -9,124 +9,121 @@ namespace PollSystem.Controllers;
 [Route("[controller]")]
 public class PollsController : ControllerBase
 {
-	private readonly AppDbContext _context;
+    private readonly AppDbContext _context;
 
-	public PollsController(AppDbContext context)
-	{
-		_context = context;
-	}
+    public PollsController(AppDbContext context)
+    {
+        _context = context;
+    }
 
-	[HttpGet]
-	public async Task<ActionResult<IEnumerable<Poll>>> GetPollsAsync()
-	{
-		return await _context.Polls.Include(poll => poll.Options).ToListAsync();
-	}
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Poll>>> GetPollsAsync()
+    {
+        return await _context.Polls.Include(poll => poll.Options).ToListAsync();
+    }
 
-	[HttpGet("{id}")]
-	public async Task<ActionResult<Poll>> GetPollByIdAsync(int id)
-	{
-		Poll? poll = await _context.Polls
-			.Include(poll => poll.Options)
-			.FirstOrDefaultAsync(poll => poll.Id == id);
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Poll>> GetPollByIdAsync(int id)
+    {
+        Poll? poll = await _context.Polls
+            .Include(poll => poll.Options)
+            .FirstOrDefaultAsync(poll => poll.Id == id);
 
-		if (poll == null)
-		{
-			return NotFound();
-		}
+        if (poll == null)
+        {
+            return NotFound();
+        }
 
-		return poll;
-	}
+        return poll;
+    }
 
-	[HttpPost]
-	public async Task<ActionResult<Poll>> CreatePollAsync(PollCreateDto poll)
-	{
-		// Ensure ExpirationDate is at least 7 days in the future
-		DateTime expirationDate = poll.ExpirationDate == default
-			? DateTime.UtcNow.AddDays(7)
-			: poll.ExpirationDate;
+    [HttpPost]
+    public async Task<ActionResult<Poll>> CreatePollAsync(PollCreateDto poll)
+    {
+        // Ensure ExpirationDate is at least 7 days in the future
+        DateTime expirationDate = poll.ExpirationDate == default
+            ? DateTime.UtcNow.AddDays(7)
+            : poll.ExpirationDate;
 
-		if (expirationDate < DateTime.UtcNow)
-		{
-			return BadRequest("Expiration date cannot be in the past");
-		}
+        if (expirationDate < DateTime.UtcNow)
+        {
+            return BadRequest("Expiration date cannot be in the past");
+        }
 
-		// Add poll options
-		List<PollOption> pollOptions = poll.Options
-			.Select(option => new PollOption(option.Text))
-			.ToList();
-		await _context.PollOptions.AddRangeAsync(pollOptions);
-		await _context.SaveChangesAsync();
+        // Add poll options
+        List<PollOption> pollOptions = poll.Options
+            .Select(option => new PollOption(option.Text))
+            .ToList();
+        await _context.PollOptions.AddRangeAsync(pollOptions);
+        await _context.SaveChangesAsync();
 
-		// Add poll itself
-		Poll newPoll = new Poll(
-			poll.Question,
-			pollOptions,
-			expirationDate
-		);
-		await _context.AddAsync(newPoll);
-		await _context.SaveChangesAsync();
+        // Add poll itself
+        Poll newPoll = new Poll(
+            poll.Question,
+            pollOptions,
+            expirationDate
+        );
+        await _context.AddAsync(newPoll);
+        await _context.SaveChangesAsync();
 
-		string actionName = nameof(GetPollByIdAsync);
-		// TODO: fix System.InvalidOperationException: No route matches the supplied values.
-		return CreatedAtAction(
-			actionName,
-			new { id = newPoll.Id },
-			newPoll
-		);
-	}
+        string actionName = nameof(GetPollByIdAsync);
+        // TODO: fix System.InvalidOperationException: No route matches the supplied values.
+        // File: Controllers/PollsController.cs
+        return Ok(newPoll);
+    }
 
-	[HttpPut("{id}")]
-	public async Task<IActionResult> UpdatePollAsync(int id, [FromBody] PollUpdateDto pollDto)
-	{
-		if (pollDto.ExpirationDate < DateTime.UtcNow)
-		{
-			return BadRequest("Expiration date cannot be in the past");
-		}
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdatePollAsync(int id, [FromBody] PollUpdateDto pollDto)
+    {
+        if (pollDto.ExpirationDate < DateTime.UtcNow)
+        {
+            return BadRequest("Expiration date cannot be in the past");
+        }
 
-		// Fetch the existing poll from the database, including its options
-		Poll? existingPoll = await _context.Polls
-			.Include(p => p.Options)
-			.FirstOrDefaultAsync(p => p.Id == id);
+        // Fetch the existing poll from the database, including its options
+        Poll? existingPoll = await _context.Polls
+            .Include(p => p.Options)
+            .FirstOrDefaultAsync(p => p.Id == id);
 
-		if (existingPoll == null)
-		{
-			return NotFound();
-		}
+        if (existingPoll == null)
+        {
+            return NotFound();
+        }
 
-		// Update poll fields
-		existingPoll.Question = pollDto.Question;
-		existingPoll.ExpirationDate = pollDto.ExpirationDate;
-		existingPoll.UpdatedOn = DateTime.UtcNow;
+        // Update poll fields
+        existingPoll.Question = pollDto.Question;
+        existingPoll.ExpirationDate = pollDto.ExpirationDate;
+        existingPoll.UpdatedOn = DateTime.UtcNow;
 
-		// Update PollOptions: Remove old ones, add new ones
-		_context.PollOptions.RemoveRange(existingPoll.Options);
+        // Update PollOptions: Remove old ones, add new ones
+        _context.PollOptions.RemoveRange(existingPoll.Options);
 
-		List<PollOption> newOptions = pollDto.Options
-			.Select(option => new PollOption(option.Text))
-			.ToList();
+        List<PollOption> newOptions = pollDto.Options
+            .Select(option => new PollOption(option.Text))
+            .ToList();
 
-		await _context.PollOptions.AddRangeAsync(newOptions);
-		await _context.SaveChangesAsync();
+        await _context.PollOptions.AddRangeAsync(newOptions);
+        await _context.SaveChangesAsync();
 
-		existingPoll.Options = newOptions;
+        existingPoll.Options = newOptions;
 
-		await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
-		return NoContent();
-	}
+        return NoContent();
+    }
 
-	[HttpDelete("{id}")]
-	public async Task<ActionResult<Poll>> DeletePollAsync(int id)
-	{
-		Poll? poll = await _context.Polls.FindAsync(id);
-		if (poll == null)
-		{
-			return NotFound();
-		}
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<Poll>> DeletePollAsync(int id)
+    {
+        Poll? poll = await _context.Polls.FindAsync(id);
+        if (poll == null)
+        {
+            return NotFound();
+        }
 
-		_context.Polls.Remove(poll);
-		await _context.SaveChangesAsync();
+        _context.Polls.Remove(poll);
+        await _context.SaveChangesAsync();
 
-		return NoContent();
-	}
+        return NoContent();
+    }
 }
