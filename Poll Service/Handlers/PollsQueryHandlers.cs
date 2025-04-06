@@ -1,7 +1,7 @@
 using MediatR;
 using PollSystem.Entities;
 using PollSystem.Queries;
-using PollSystem.Votes;
+using PollSystem.Services;
 
 namespace PollSystem.Queries
 {

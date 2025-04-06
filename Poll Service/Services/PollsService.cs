@@ -2,7 +2,7 @@ using MassTransit;
 using PollSystem.Entities;
 using PollSystem.Repositories;
 
-namespace PollSystem.Votes;
+namespace PollSystem.Services;
 
 public class PollsService(PollsRepository repository, IBus bus)
 {

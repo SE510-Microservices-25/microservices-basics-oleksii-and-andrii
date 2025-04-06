@@ -7,7 +7,6 @@ using PollSystem.Data;
 using PollSystem.Entities;
 using PollSystem.Repositories;
 using PollSystem.Services;
-using PollSystem.Votes;
 
 var builder = WebApplication.CreateBuilder(args);
 
