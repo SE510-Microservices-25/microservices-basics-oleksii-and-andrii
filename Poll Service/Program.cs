@@ -106,6 +106,7 @@ builder.Services.AddMassTransit(
 	}
 );
 builder.Services.AddTransient<RabbitMqService>();
+builder.Services.AddHostedService<OutboxProcessor>();
 
 // Add services, repositories
 builder.Services.AddScoped<PollsService>();
@@ -155,7 +156,7 @@ app.MapGet(
 		await rabbitMqService.SendMessage(
 			new PollCreateDto()
 			{
-				Question = "Hello world? 01.04.2025",
+				Question = "Hello world? Build 06.04.2025",
 				Options = new List<PollOptionCreateDto>()
 				{
 					new PollOptionCreateDto() { Text = "Yes" },
