@@ -4,18 +4,11 @@ using PollSystem.Entities;
 
 namespace PollSystem.Consumers;
 
-public class PollCreatedConsumer : IConsumer<PollCreateDto>
+public class PollCreatedConsumer(ILogger<PollCreatedConsumer> logger) : IConsumer<PollCreateDto>
 {
-	private readonly ILogger<PollCreatedConsumer> _logger;
-
-	public PollCreatedConsumer(ILogger<PollCreatedConsumer> logger)
-	{
-		_logger = logger;
-	}
-
 	public Task Consume(ConsumeContext<PollCreateDto> context)
 	{
-		_logger.LogInformation($"Poll received: \"{context.Message.Question}\" till {context.Message.ExpirationDate} ({string.Join(", ", context.Message.Options.Select(it => it.Text))})");
+		logger.LogInformation($"Poll received: \"{context.Message.Question}\" till {context.Message.ExpirationDate} ({string.Join(", ", context.Message.Options.Select(it => it.Text))})");
 		return Task.CompletedTask;
 	}
 }

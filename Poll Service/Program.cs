@@ -106,7 +106,6 @@ builder.Services.AddMassTransit(
 	}
 );
 builder.Services.AddTransient<RabbitMqService>();
-builder.Services.AddScoped<OutboxProcessor>();
 
 // Add services, repositories
 builder.Services.AddScoped<PollsService>();
@@ -114,6 +113,7 @@ builder.Services.AddScoped<PollsRepository>();
 
 // Register MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+builder.Services.AddHostedService<OutboxProcessor>();
 
 var app = builder.Build();
 
@@ -141,7 +141,7 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI(
 		options =>
 		{
-			options.SwaggerEndpoint("/polls/swagger/v1/swagger.json", "Polls API V1");
+			options.SwaggerEndpoint("/swagger/v1/swagger.json", "Polls API V1");
 			options.OAuthClientId(keycloakClientId);
 			options.OAuthAppName("Polls API - Swagger");
 			options.OAuthUsePkce();

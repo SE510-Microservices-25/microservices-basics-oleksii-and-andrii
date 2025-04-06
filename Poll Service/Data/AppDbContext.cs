@@ -1,18 +1,9 @@
 using System.Text.Json;
+using MassTransit.Serialization;
 using Microsoft.EntityFrameworkCore;
 using PollSystem.Entities;
 
 namespace PollSystem.Data;
-
-public interface IHasDomainEvents
-{
-    List<DomainEvent> DomainEvents { get; }
-}
-
-public abstract class DomainEvent
-{
-    public DateTime OccurredOn { get; private set; } = DateTime.UtcNow;
-}
 
 public class AppDbContext : DbContext
 {
@@ -52,10 +43,11 @@ public class AppDbContext : DbContext
 
         foreach (var domainEvent in domainEvents)
         {
+            var curEvent = domainEvent.Transform<PollAddedEvent>(new JsonSerializerOptions());
             var outboxMessage = new OutboxMessage
             {
                 Type = domainEvent.GetType().FullName!,
-                Payload = JsonSerializer.Serialize(domainEvent),
+                Payload = JsonSerializer.Serialize(curEvent),
                 CreatedAt = DateTime.UtcNow,
                 Processed = false
             };

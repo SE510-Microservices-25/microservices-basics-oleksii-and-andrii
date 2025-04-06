@@ -1,8 +1,14 @@
 using System.ComponentModel.DataAnnotations;
+using MediatR;
 
 namespace PollSystem.Entities;
 
-public class Poll
+public interface IHasDomainEvents
+{
+	List<INotification> DomainEvents { get; }
+}
+
+public class Poll : IHasDomainEvents
 {
 	public Poll() { }
 
@@ -11,10 +17,12 @@ public class Poll
 		Question = question;
 		Options = options;
 		ExpirationDate = expirationDate;
+		DomainEvents.Add(new PollAddedEvent(this));
 	}
 
 	[Key] public int Id { get; init; }
 	[Required, MaxLength(255)] public string Question { get; set; }
+	public List<INotification> DomainEvents { get; } = new List<INotification>();
 	public ICollection<PollOption> Options { get; set; } = new List<PollOption>();
 	public DateTime ExpirationDate { get; set; }
 

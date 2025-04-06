@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using PollSystem.Entities;
 using VoteSystem.Consumer;
 using VoteSystem.Data;
 using VoteSystem.Repository;
@@ -82,6 +83,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<VoteCreatedConsumer>();
+    x.AddConsumer<PollAddedConsumer>();
 
     x.UsingRabbitMq((context, cfg) =>
     {
@@ -92,6 +94,7 @@ builder.Services.AddMassTransit(x =>
         });
 
         cfg.ReceiveEndpoint("vote-created-queue", e => { e.ConfigureConsumer<VoteCreatedConsumer>(context); });
+        cfg.ReceiveEndpoint("poll-added-queue", e => { e.ConfigureConsumer<PollAddedConsumer>(context); });
     });
 });
 
