@@ -16,7 +16,7 @@ namespace VoteSystem.Query
 
 namespace VoteSystem.Handlers
 {
-    public class GetVotesHandler(VoteService service)
+    public class GetVotesHandler(IVoteService service)
         : IRequestHandler<GetVotesQuery, List<Vote>>, IRequestHandler<GetVotesByPollQuery, List<Vote>>
     {
         public async Task<List<Vote>> Handle(GetVotesQuery request, CancellationToken cancellationToken)
@@ -30,7 +30,7 @@ namespace VoteSystem.Handlers
         }
     }
 
-    public class GetResultsHandler(VoteService service)
+    public class GetResultsHandler(IVoteService service)
         : IRequestHandler<GetAllResultsQuery, List<Dictionary<long, int>>?>,
             IRequestHandler<GetResultsQuery, Dictionary<long, int>?>
     {

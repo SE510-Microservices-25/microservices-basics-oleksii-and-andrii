@@ -68,13 +68,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         o.TokenValidationParameters = new TokenValidationParameters
         {
             ValidIssuer = builder.Configuration["Authentication:ValidIssuer"],
-            IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
+            IssuerSigningKeyResolver = (_, _, keyId, _) =>
             {
                 using var httpClient = new HttpClient();
                 var jwksUri = $"{keycloakInternalUrl}/realms/MyRealm/protocol/openid-connect/certs";
                 var jwks = httpClient.GetStringAsync(jwksUri).Result;
                 var keys = new JsonWebKeySet(jwks);
-                return keys.GetSigningKeys().Where(k => k.KeyId == kid);
+                return keys.GetSigningKeys().Where(k => k.KeyId == keyId);
             }
         };
     });
@@ -97,8 +97,8 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddDbContext<VotesDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("VotesDbConnection")));
-builder.Services.AddScoped<VotesRepository>();
-builder.Services.AddScoped<VoteService>();
+builder.Services.AddScoped<IVotesRepository, VotesRepository>();
+builder.Services.AddScoped<IVoteService, VoteService>();
 builder.Services.AddMediatR(typeof(Program).Assembly);
 
 var app = builder.Build();

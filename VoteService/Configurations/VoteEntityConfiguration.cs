@@ -4,7 +4,7 @@ using VoteSystem.Entities;
 
 namespace VoteSystem.Configurations;
 
-public class VoteEntityConfiguration
+public class VoteEntityConfiguration : IEntityTypeConfiguration<VoteEntity>
 {
     public void Configure(EntityTypeBuilder<VoteEntity> builder)
     {

@@ -5,23 +5,23 @@ using VoteSystem.Repository;
 
 namespace VoteSystem.Services;
 
-public class VoteService(VotesRepository repository, IBus bus)
+public class VoteService(IVotesRepository repository, IBus bus) : IVoteService
 {
-    public async Task<List<Vote>> GetAllVotes(CancellationToken cancellationToken = default)
+    public async Task<List<Vote>> GetAllVotes(CancellationToken cancellationToken)
     {
         var votes = await repository.GetAllVotesAsync(cancellationToken);
 
         return votes.Select(v => new Vote(v.Id, v.PollId, v.UserId, v.ChoiceId, v.CreatedAt)).ToList();
     }
 
-    public async Task<List<Vote>> GetVotes(long pollId, CancellationToken cancellationToken = default)
+    public async Task<List<Vote>> GetVotes(long pollId, CancellationToken cancellationToken)
     {
         var votes = await repository.GetVoteByPollIdAsync(pollId, cancellationToken);
 
         return votes.Select(v => new Vote(v.Id, v.PollId, v.UserId, v.ChoiceId, v.CreatedAt)).ToList();
     }
 
-    public async Task<Vote?> CreateVote(VoteData? vote, CancellationToken cancellationToken = default)
+    public async Task<Vote?> CreateVote(VoteData? vote, CancellationToken cancellationToken)
     {
         if (vote == null) return null;
 
@@ -35,19 +35,19 @@ public class VoteService(VotesRepository repository, IBus bus)
         return newVote;
     }
 
-    public async Task<bool> DeleteVote(long id, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteVote(long id, CancellationToken cancellationToken)
     {
         var result = await repository.DeleteVoteAsync(id, cancellationToken);
         return result;
     }
 
-    public async Task<List<Dictionary<long, int>>?> GetAllResults(CancellationToken cancellationToken = default)
+    public async Task<List<Dictionary<long, int>>?> GetAllResults(CancellationToken cancellationToken)
     {
         var results = await repository.GetAllResultsAsync(cancellationToken);
         return results;
     }
 
-    public async Task<Dictionary<long, int>?> GetResults(long pollId, CancellationToken cancellationToken = default)
+    public async Task<Dictionary<long, int>?> GetResults(long pollId, CancellationToken cancellationToken)
     {
         var results = await repository.GetResultsAsync(pollId, cancellationToken);
         return results;

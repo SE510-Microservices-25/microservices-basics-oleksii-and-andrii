@@ -12,7 +12,7 @@ namespace VoteSystem.Command
 
 namespace VoteSystem.Handlers
 {
-    public class CreateVoteHandler(VoteService service) : IRequestHandler<CreateVoteCommand, Vote?>
+    public class CreateVoteHandler(IVoteService service) : IRequestHandler<CreateVoteCommand, Vote?>
     {
         public async Task<Vote?> Handle(CreateVoteCommand request, CancellationToken cancellationToken)
         {
@@ -21,7 +21,7 @@ namespace VoteSystem.Handlers
         }
     }
 
-    public class DeleteVoteHandler(VoteService service) : IRequestHandler<DeleteVoteCommand, bool>
+    public class DeleteVoteHandler(IVoteService service) : IRequestHandler<DeleteVoteCommand, bool>
     {
         public async Task<bool> Handle(DeleteVoteCommand request, CancellationToken cancellationToken)
         {

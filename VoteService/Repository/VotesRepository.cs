@@ -4,19 +4,19 @@ using VoteSystem.Entities;
 
 namespace VoteSystem.Repository;
 
-public class VotesRepository(VotesDbContext context)
+public class VotesRepository(VotesDbContext context) : IVotesRepository
 {
-    public async Task<List<VoteEntity>> GetAllVotesAsync(CancellationToken cancellationToken = default)
+    public async Task<List<VoteEntity>> GetAllVotesAsync(CancellationToken cancellationToken)
     {
         return await context.Votes.ToListAsync(cancellationToken);
     }
 
-    public async Task<List<VoteEntity>> GetVoteByPollIdAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<List<VoteEntity>> GetVoteByPollIdAsync(long id, CancellationToken cancellationToken)
     {
         return await context.Votes.Where(v => v.PollId == id).ToListAsync(cancellationToken);
     }
 
-    public async Task<VoteEntity?> CreateVoteAsync(VoteEntity? vote, CancellationToken cancellationToken = default)
+    public async Task<VoteEntity?> CreateVoteAsync(VoteEntity? vote, CancellationToken cancellationToken)
     {
         if (vote == null) return null;
 
@@ -34,7 +34,7 @@ public class VotesRepository(VotesDbContext context)
         return vote;
     }
 
-    public async Task<bool> DeleteVoteAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteVoteAsync(long id, CancellationToken cancellationToken)
     {
         var vote = await context.Votes.FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
 
@@ -54,7 +54,7 @@ public class VotesRepository(VotesDbContext context)
         return true;
     }
 
-    public async Task<List<Dictionary<long, int>>?> GetAllResultsAsync(CancellationToken cancellationToken = default)
+    public async Task<List<Dictionary<long, int>>?> GetAllResultsAsync(CancellationToken cancellationToken)
     {
         var votesGrouped = await context.Votes
             .GroupBy(v => v.PollId)
@@ -69,8 +69,7 @@ public class VotesRepository(VotesDbContext context)
             .ToList();
     }
 
-    public async Task<Dictionary<long, int>?> GetResultsAsync(long pollId,
-        CancellationToken cancellationToken = default)
+    public async Task<Dictionary<long, int>?> GetResultsAsync(long pollId, CancellationToken cancellationToken)
     {
         var votes = await context.Votes
             .Where(v => v.PollId == pollId)
