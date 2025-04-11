@@ -16,6 +16,9 @@ public class PollOption
 
 	public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 	public DateTime UpdatedOn { get; set; } = DateTime.UtcNow;
+
+	public override bool Equals(object? obj) => obj is PollOption pollOption && Id == pollOption.Id;
+	public override int GetHashCode() => Id.GetHashCode();
 }
 
 public class PollOptionCreateDto

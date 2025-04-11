@@ -4,7 +4,7 @@ using PollSystem.Repositories;
 
 namespace PollSystem.Services;
 
-public class PollsService(PollsRepository repository, IBus bus)
+public class PollsService(IPollsRepository repository, IBus bus)
 {
 	public async Task<List<Poll>> GetAllPollsAsync(CancellationToken cancellationToken)
 	{

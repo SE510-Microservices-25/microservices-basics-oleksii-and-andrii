@@ -4,7 +4,17 @@ using PollSystem.Entities;
 
 namespace PollSystem.Repositories;
 
-public class PollsRepository(AppDbContext context)
+public interface IPollsRepository
+{
+	Task<List<Poll>> GetAllPollsAsync(CancellationToken cancellationToken);
+	Task<Poll?> GetPollByIdAsync(int id, CancellationToken cancellationToken);
+	Task<Poll?> CreatePollAsync(Poll poll, CancellationToken cancellationToken);
+	Task<bool> AddOptionsAsync(List<PollOption> option, CancellationToken cancellationToken);
+	Task<Poll?> UpdatePollAsync(int id, PollUpdateDto poll, CancellationToken cancellationToken);
+	Task<bool> DeletePollAsync(int id, CancellationToken cancellationToken);
+}
+
+public class PollsRepository(AppDbContext context) : IPollsRepository
 {
 	public async Task<List<Poll>> GetAllPollsAsync(CancellationToken cancellationToken)
 	{
